@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WebSocket demo</title>
+    </head>
+    <body>
+        <button id="mqtt">MQTT</button>
+        <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+        <script>
+            // MQTT over Websockets connection
+            var mqtt;
+            var host = 'wss://shulltronics.net:8083';
+            const mqtt_js_options = {
+                username: 'carstentb',
+                password: 'shulltronics',
+                keepalive: 60,
+                clientId: "shulltronics_mqtt_js_client",
+                protocolId: 'MQTT',
+                protocolVersion: 4,
+                clean: true,
+                reconnectPeriod: 0,
+                connectTimeout: 30 * 1000,
+                will: {
+                    topic: 'WillMsg',
+                    payload: 'Connection Closed abnormally..!',
+                    qos: 0,
+                    retain: false
+                },
+            };
+
+            const client = mqtt.connect(host, mqtt_js_options);
+            client.on('error', (err) => {
+                console.log('Connection error: ', err);
+                client.end();
+            });
+
+            client.on('reconnect', () => {
+                console.log('Reconnecting...');
+            });
+
+            client.on('connect', () => {
+                console.log("mqtt_js_connected!");
+                client.subscribe("clue/#");
+            });
+
+            client.on('message', function (topic, payload, packet) {
+                // Payload is Buffer
+                console.log(`Topic: ${topic}, Message: ${payload.toString()}, QoS: ${packet.qos}`);
+            });
+
+            // Websockets direct connection
+            // let socket = new WebSocket('wss://www.shulltronics.net:8000');
+            
+            // socket.addEventListener('open', function (event) {
+            //     socket.send('Connection Established');
+            // });
+            
+            // socket.addEventListener('message', function (event) {
+            //     console.log(event.data);
+            // });
+    
+            // const contactServer = () => {
+            //     console.log("attempting to contact wss...")
+            //     socket.send("Initialize");
+            // }
+
+            // document.getElementById("mqtt").onclick = contactServer;
+
+        </script>
+    </body>
+</html>
